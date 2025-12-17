@@ -1,37 +1,38 @@
-use std::sync::{Arc, Mutex};
+use std::{sync::{Arc, Mutex}, vec};
 
-use actix_web :: { HttpResponse,  Responder, get,  post, web::{Data, Json}};
+use actix_web::{HttpResponse, HttpServer, Responder, ResponseError, body::BodyLimitExceeded, get, post, web::{Data, Json}};
 
-use crate::{input::{CreateOrderInput, DeleteOrder}, orderbook::{self, OrderBook}, output::{CreateOrderResponse, DeleteOrderResponse, Depth}};
+use crate::{input::{CreateOrderInput, DeleteOrder}, orderbook::{self, OrderBook}, output::{CreateOrderOutput, Depth}};
+
+
+
 #[post("/order")]
-pub async fn create_order(body : Json<CreateOrderInput>,orderbook : Data<Arc<Mutex<OrderBook>>> )-> impl  Responder {
-   let price = body.0.price;
-   let quantity  = body.0.quantity;
-   let user_id = body.0.user_id;
-   let side = body.0.side; 
-
-    let orderbook = orderbook.lock().unwrap();
+pub async  fn create_order(body  : Json<CreateOrderInput>, orderbook : Data<Arc<Mutex<OrderBook>>>)-> impl Responder{
     
-    return HttpResponse::Ok().json(CreateOrderResponse{
-        order_id : String::from("order")
-    });
-}
+    let price = body.0.price;
+    let user_id = body.0.user_id;
+    let qty = body.0.quantity;
+    let side = body.0.side;
+    let mut orderbook =  orderbook.lock().unwrap();
+    // orderbook.create_order(CreateOrderInput);
 
-#[post("/deleteorder")]
-pub async  fn delete_order(Json(body ): Json<DeleteOrder>, orderbook : Data<Arc<Mutex<OrderBook>>>)-> impl  Responder{
-     let order_id = body.order_id;
-     HttpResponse::Ok().json(DeleteOrderResponse{
-        filled_qty : 3,
-        avergae_price : 100
-     })
-}
-
-#[get("/getdepth")]
-pub async  fn get_depth(orderbook : Data<Arc<Mutex<OrderBook>>>) -> impl Responder {
-    HttpResponse::Ok().json(Depth{
-        bids : vec![],
-        asks : vec![],
-        lastupdatedid : String::from("UpdatedID_123")
+    return  HttpResponse::Ok().json(CreateOrderOutput{
+        user_id : String::from("asdf")
     })
 }
 
+#[post("/deleteorder")]
+
+pub async fn delete_order() -> impl Responder{
+    HttpResponse::Ok().json(DeleteOrder{
+        order_id : String::from("Delete_Id 1")
+    })
+}
+#[get("/depth")]
+pub  async  fn depth() -> impl Responder{
+    HttpResponse::Ok().json(Depth{
+        bids : vec![],
+        asks : vec![],
+        lastUpdatedId : String::from("lastUpdated123")
+    })
+}
