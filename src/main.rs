@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 
 // use::actix_web
-use::actix_web::{App , HttpServer};
+use::actix_web::{App , HttpServer,web};
 
 use crate::{orderbook::OrderBook, routes::{create_order, delete_order, depth}};
 pub mod orderbook;
@@ -18,7 +18,7 @@ async  fn main () -> std::io::Result<()> {
 
   HttpServer::new(move || {
     App::new()
-    .app_data(orderbook.clone())
+    .app_data(web::Data::new(orderbook.clone()))
     .service(create_order)
     .service(delete_order)
     .service(depth)

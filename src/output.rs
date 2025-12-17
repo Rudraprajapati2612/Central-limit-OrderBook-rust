@@ -1,4 +1,4 @@
-use std::vec;
+
 
 use serde::{ Deserialize , Serialize} ;
 
@@ -10,6 +10,6 @@ pub struct CreateOrderOutput{
 pub struct  Depth{
     pub bids : Vec<[u32;2]>,
     pub asks : Vec<[u32;2]>,
-    pub lastUpdatedId : String
+    pub lastupdatedid : String
 
 }

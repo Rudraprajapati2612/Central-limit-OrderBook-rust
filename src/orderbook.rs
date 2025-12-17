@@ -1,8 +1,8 @@
-use std::{cmp::{max, min_by, min_by_key}, collections::{BTreeMap, HashMap},  path::PrefixComponent};
+use std::{ collections::{BTreeMap, } };
 
-use actix_web::http::header::Quality;
 
-use crate::{input::{CreateOrderInput, Side}, orderbook};
+
+use crate::{input::{CreateOrderInput, Side}};
 
 pub struct OrderBook {
     asks: BTreeMap<u32, Vec<UserOrder>>,
@@ -30,8 +30,8 @@ impl OrderBook {
 }
 
 impl OrderBook {
-    pub fn create_order(&mut self, order: CreateOrderInput ) {
-        let order_id = self.order_id_index;
+    pub fn create_order(&mut self, order: &CreateOrderInput ) {
+        // let order_id = self.order_id_index;
         
         let order =  UserOrder{
             order_id : self.order_id_index,
@@ -49,62 +49,7 @@ impl OrderBook {
     }
 
 
-    // pub fn match_buy(&mut self, mut buy_order: UserOrder) {
-
-    //     while buy_order.remainig_qty > 0 {
-    
-    //         // 1. Get best ask price
-    //         let best_sell_price = match self.asks.keys().next().cloned() {
-    //             Some(p) => p,
-    //             None => break, // no asks
-    //         };
-    
-    //         // 2. Price check
-    //         if best_sell_price > buy_order.price {
-    //             break;
-    //         }
-    
-    //         // 3. Take oldest sell order at this price
-    //         let ask_queue = self.asks.get_mut(&best_sell_price).unwrap();
-    //         let mut sell_order = ask_queue.remove(0);
-    
-    //         // 4. Execute trade
-    //         let trade_qty = std::cmp::min(
-    //             buy_order.remainig_qty,
-    //             sell_order.remainig_qty,
-    //         );
-    
-    //         buy_order.remainig_qty -= trade_qty;
-    //         sell_order.remainig_qty -= trade_qty;
-    
-    //         println!(
-    //             "TRADE: Buy {} Sell {} Qty {} @ {}",
-    //             buy_order.order_id,
-    //             sell_order.order_id,
-    //             trade_qty,
-    //             best_sell_price
-    //         );
-    
-    //         // 5. Handle resting sell order
-    //         if sell_order.remainig_qty > 0 {
-    //             // partial fill → put back at same price (front = FIFO)
-    //             ask_queue.insert(0, sell_order);
-    //         }
-    
-    //         // 6. Remove price level if empty
-    //         if ask_queue.is_empty() {
-    //             self.asks.remove(&best_sell_price);
-    //         }
-    //     }
-    
-    //     // 7. Insert remaining BUY order ONCE
-    //     if buy_order.remainig_qty > 0 {
-    //         self.bids
-    //             .entry(buy_order.price)
-    //             .or_default()
-    //             .push(buy_order);
-    //     }
-    // }
+ 
     
 
     pub fn match_buy ( &mut self, mut buy_order:UserOrder) {
@@ -136,13 +81,27 @@ impl OrderBook {
             buy_order.remainig_qty-=trade_qty;
             sell_order.remainig_qty-=trade_qty;
 
+            // println!(
+            //     "TRADE: Buy {} Sell {} Qty {} @ {}",
+            //     buy_order.order_id,
+            //     sell_order.order_id,
+            //     trade_qty,
+            //     best_sell_price
+            // );
+
+
             println!(
-                "TRADE: Buy {} Sell {} Qty {} @ {}",
+                "[TRADE] price={} qty={} | buy_order={} sell_order={} | buyer={} seller={}",
+                best_sell_price,
+                trade_qty,
                 buy_order.order_id,
                 sell_order.order_id,
-                trade_qty,
-                best_sell_price
+                buy_order.user_id,
+                sell_order.user_id,
             );
+            
+
+
              // after it sell order quantity is remaning  means 
             // let suppose user want to buy only 5 Solana 
             // and total solana for sell is 10 then remaning 5 sol will get in the orderbook again 
@@ -183,6 +142,27 @@ impl OrderBook {
 
             sell_order.remainig_qty-=trade_qty;
             buy_order.remainig_qty-=trade_qty;
+
+            
+            // println!(
+            //     "TRADE: Buy {} Sell {} Qty {} @ {}",
+            //     buy_order.order_id,
+            //     sell_order.order_id,
+            //     trade_qty,
+            //     best_buy_price
+            // );
+
+
+            println!(
+                "[TRADE] price={} qty={} | buy_order={} sell_order={} | buyer={} seller={}",
+                best_buy_price,
+                trade_qty,
+                buy_order.order_id,
+                sell_order.order_id,
+                buy_order.user_id,
+                sell_order.user_id,
+            );
+            
 
             if buy_order.remainig_qty>0{
                 bid_queue.insert(0, buy_order);
